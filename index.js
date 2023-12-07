@@ -46,7 +46,7 @@ var uni_utils_1 = __importDefault(require("uni-utils"));
 var axios_1 = __importDefault(require("axios"));
 var Ktcs = (function () {
     function Ktcs() {
-        this.ver = '0.1.1';
+        this.ver = '0.1.2';
     }
     Ktcs.prototype.setConfig = function (config) {
         if (!config.url || !config.token)
@@ -70,7 +70,7 @@ var Ktcs = (function () {
     };
     Ktcs.prototype.getWxToken = function (app, type, ref) {
         return __awaiter(this, void 0, void 0, function () {
-            var cacheFile, cacheContent, _a, token, expiredTime, error_1, timeStamp, url, csRes, _b, key, expire, cacheContent, error_2;
+            var cacheFile, cacheContent, _a, token, expiredTime, error_1, timeStamp, url, csRes, tokenInfo, _b, key, expire, cacheContent, error_2;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
@@ -107,13 +107,14 @@ var Ktcs = (function () {
                             })];
                     case 6:
                         csRes = (_c.sent()).data;
-                        if (!(csRes.code === 0 && csRes.data.token)) return [3, 8];
-                        _b = csRes.data.token, key = _b.key, expire = _b.expire;
+                        if (!(csRes.code === 0)) return [3, 8];
+                        tokenInfo = csRes.data;
+                        _b = tokenInfo.token, key = _b.key, expire = _b.expire;
                         cacheContent = "".concat(key, ":").concat(expire);
                         return [4, uni_utils_1.default.saveFile(cacheContent, cacheFile)];
                     case 7:
                         _c.sent();
-                        return [2, csRes.data.token.key];
+                        return [2, key];
                     case 8: throw Error(csRes.msg || JSON.stringify(csRes));
                     case 9:
                         error_2 = _c.sent();

@@ -46,7 +46,7 @@ var uni_utils_1 = __importDefault(require("uni-utils"));
 var axios_1 = __importDefault(require("axios"));
 var Ktcs = (function () {
     function Ktcs() {
-        this.ver = '0.1.2';
+        this.ver = '0.2.0';
     }
     Ktcs.prototype.setConfig = function (config) {
         if (!config.url || !config.token)
@@ -118,9 +118,46 @@ var Ktcs = (function () {
                     case 8: throw Error(csRes.msg || JSON.stringify(csRes));
                     case 9:
                         error_2 = _c.sent();
-                        console.log(error_2);
+                        this.config.debug && console.log(error_2);
                         throw Error('凭证申请错误:' + error_2.message);
                     case 10: return [2];
+                }
+            });
+        });
+    };
+    Ktcs.prototype.getWxCfEnv = function (app, env, token, ref) {
+        return __awaiter(this, void 0, void 0, function () {
+            var timeStamp, url, csRes, envInfo, error_3;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        timeStamp = uni_utils_1.default.getTimeStamp();
+                        url = "".concat(this.config.url, "/dev/env");
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4, axios_1.default.post(url, {
+                                keyId: app,
+                                env: env,
+                                token: token,
+                                app_name: ref || ''
+                            }, {
+                                headers: {
+                                    'token': uni_utils_1.default.hash.sha1("".concat(this.config.token, "-u-").concat(timeStamp)) + ':' + timeStamp
+                                }
+                            })];
+                    case 2:
+                        csRes = (_a.sent()).data;
+                        if (csRes.code === 0) {
+                            envInfo = csRes.data;
+                            return [2, envInfo];
+                        }
+                        throw Error(csRes.msg || JSON.stringify(csRes));
+                    case 3:
+                        error_3 = _a.sent();
+                        this.config.debug && console.log(error_3);
+                        throw Error('环境获取错误:' + error_3.message);
+                    case 4: return [2];
                 }
             });
         });

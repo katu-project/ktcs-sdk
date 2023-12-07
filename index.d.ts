@@ -5,6 +5,9 @@ interface CsConfig {
     access_token?: string;
     debug?: boolean;
 }
+interface WxCfEnvResp {
+    [key: string]: string;
+}
 export declare class Ktcs {
     ver: string;
     config: CsConfig;
@@ -12,5 +15,6 @@ export declare class Ktcs {
     getWxAppToken(app: string, ref?: string): Promise<string>;
     getWxGzhToken(app: string, ref?: string): Promise<string>;
     getWxToken(app: string, type: 'WX_MINI_APP_SECRET' | 'WX_GZH_SECRET', ref?: string): Promise<string>;
+    getWxCfEnv(app: string, env: string, token: string, ref?: string): Promise<WxCfEnvResp>;
 }
 export {};

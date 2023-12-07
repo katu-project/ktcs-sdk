@@ -1,5 +1,6 @@
-const { Ktcs } = require('../index')
-const config = require('dotenv').config().parsed
-const ktcs = new Ktcs()
-ktcs.setConfig(Object.assign({debug:true},config))
-ktcs.getWxAppToken(config.app).then(console.log)
+if (!process.argv[2]) {
+    console.log('run: npm test [wxToken,wxEnv]!')
+    return
+}
+
+require(`./${process.argv[2]}.test`)

@@ -1,6 +1,13 @@
-if (!process.argv[2]) {
-    console.log('run: npm test [wxToken,wxEnv]!')
-    return
+const getWxEnv = require('./wxEnv.test')
+const getWxToken = require('./wxToken.test')
+
+if (process.argv[2]) {
+    return require(`./${process.argv[2]}.test`).test()
 }
 
-require(`./${process.argv[2]}.test`)
+;(async ()=>{
+    await getWxToken.test()
+    await getWxEnv.test()
+})()
+
+

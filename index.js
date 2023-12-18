@@ -46,7 +46,7 @@ var uni_utils_1 = __importDefault(require("uni-utils"));
 var axios_1 = __importDefault(require("axios"));
 var Ktcs = (function () {
     function Ktcs() {
-        this.ver = '0.2.1';
+        this.ver = '0.3.0';
     }
     Ktcs.prototype.setConfig = function (config) {
         if (!config.url || !config.token)
@@ -143,14 +143,46 @@ var Ktcs = (function () {
             });
         });
     };
-    Ktcs.prototype.request = function (url, data) {
+    Ktcs.prototype.getTencentKey = function (app, ref) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2, this.getKey(app, 'TENCENT_CLOUD_SECRET', ref)];
+            });
+        });
+    };
+    Ktcs.prototype.getKey = function (name, type, ref) {
+        return __awaiter(this, void 0, void 0, function () {
+            var url, error_4;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        url = "".concat(this.config.url, "/key");
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4, this.request(url, {
+                                type: type,
+                                name: name,
+                                app_name: ref || ''
+                            })];
+                    case 2: return [2, _a.sent()];
+                    case 3:
+                        error_4 = _a.sent();
+                        this.config.debug && console.log(error_4);
+                        throw Error('KEY获取错误:' + error_4.message);
+                    case 4: return [2];
+                }
+            });
+        });
+    };
+    Ktcs.prototype.request = function (url, data, method) {
         return __awaiter(this, void 0, void 0, function () {
             var timeStamp, csRes;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         timeStamp = uni_utils_1.default.getTimeStamp();
-                        return [4, axios_1.default.post(url, data, {
+                        return [4, axios_1.default[method || 'post'](url, data, {
                                 headers: {
                                     'token': uni_utils_1.default.hash.sha1("".concat(this.config.token, "-u-").concat(timeStamp)) + ':' + timeStamp
                                 }

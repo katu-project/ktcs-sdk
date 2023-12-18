@@ -46,7 +46,7 @@ var uni_utils_1 = __importDefault(require("uni-utils"));
 var axios_1 = __importDefault(require("axios"));
 var Ktcs = (function () {
     function Ktcs() {
-        this.ver = '0.2.0';
+        this.ver = '0.2.1';
     }
     Ktcs.prototype.setConfig = function (config) {
         if (!config.url || !config.token)
@@ -70,7 +70,7 @@ var Ktcs = (function () {
     };
     Ktcs.prototype.getWxToken = function (app, type, ref) {
         return __awaiter(this, void 0, void 0, function () {
-            var cacheFile, cacheContent, _a, token, expiredTime, error_1, timeStamp, url, csRes, tokenInfo, _b, key, expire, cacheContent, error_2;
+            var cacheFile, cacheContent, _a, token, expiredTime, error_1, url, tokenInfo, _b, key, expire, cacheContent, error_2;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
@@ -91,73 +91,76 @@ var Ktcs = (function () {
                         error_1 = _c.sent();
                         return [3, 4];
                     case 4:
-                        timeStamp = uni_utils_1.default.getTimeStamp();
                         url = "".concat(this.config.url, "/wx/token");
                         _c.label = 5;
                     case 5:
-                        _c.trys.push([5, 9, , 10]);
-                        return [4, axios_1.default.post(url, {
+                        _c.trys.push([5, 8, , 9]);
+                        return [4, this.request(url, {
                                 type: type,
                                 name: app,
                                 app_name: ref || ''
-                            }, {
-                                headers: {
-                                    'token': uni_utils_1.default.hash.sha1("".concat(this.config.token, "-u-").concat(timeStamp)) + ':' + timeStamp
-                                }
                             })];
                     case 6:
-                        csRes = (_c.sent()).data;
-                        if (!(csRes.code === 0)) return [3, 8];
-                        tokenInfo = csRes.data;
+                        tokenInfo = _c.sent();
                         _b = tokenInfo.token, key = _b.key, expire = _b.expire;
                         cacheContent = "".concat(key, ":").concat(expire);
                         return [4, uni_utils_1.default.saveFile(cacheContent, cacheFile)];
                     case 7:
                         _c.sent();
                         return [2, key];
-                    case 8: throw Error(csRes.msg || JSON.stringify(csRes));
-                    case 9:
+                    case 8:
                         error_2 = _c.sent();
                         this.config.debug && console.log(error_2);
                         throw Error('凭证申请错误:' + error_2.message);
-                    case 10: return [2];
+                    case 9: return [2];
                 }
             });
         });
     };
     Ktcs.prototype.getWxCfEnv = function (app, env, token, ref) {
         return __awaiter(this, void 0, void 0, function () {
-            var timeStamp, url, csRes, envInfo, error_3;
+            var url, error_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        timeStamp = uni_utils_1.default.getTimeStamp();
                         url = "".concat(this.config.url, "/dev/env");
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4, axios_1.default.post(url, {
+                        return [4, this.request(url, {
                                 keyId: app,
                                 env: env,
                                 token: token,
                                 app_name: ref || ''
-                            }, {
-                                headers: {
-                                    'token': uni_utils_1.default.hash.sha1("".concat(this.config.token, "-u-").concat(timeStamp)) + ':' + timeStamp
-                                }
                             })];
-                    case 2:
-                        csRes = (_a.sent()).data;
-                        if (csRes.code === 0) {
-                            envInfo = csRes.data;
-                            return [2, envInfo];
-                        }
-                        throw Error(csRes.msg || JSON.stringify(csRes));
+                    case 2: return [2, _a.sent()];
                     case 3:
                         error_3 = _a.sent();
                         this.config.debug && console.log(error_3);
                         throw Error('环境获取错误:' + error_3.message);
                     case 4: return [2];
+                }
+            });
+        });
+    };
+    Ktcs.prototype.request = function (url, data) {
+        return __awaiter(this, void 0, void 0, function () {
+            var timeStamp, csRes;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        timeStamp = uni_utils_1.default.getTimeStamp();
+                        return [4, axios_1.default.post(url, data, {
+                                headers: {
+                                    'token': uni_utils_1.default.hash.sha1("".concat(this.config.token, "-u-").concat(timeStamp)) + ':' + timeStamp
+                                }
+                            })];
+                    case 1:
+                        csRes = (_a.sent()).data;
+                        if (csRes.code !== 0) {
+                            throw Error(csRes.msg || JSON.stringify(csRes));
+                        }
+                        return [2, csRes.data];
                 }
             });
         });

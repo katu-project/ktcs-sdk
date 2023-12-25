@@ -46,7 +46,7 @@ var uni_utils_1 = __importDefault(require("uni-utils"));
 var axios_1 = __importDefault(require("axios"));
 var Ktcs = (function () {
     function Ktcs() {
-        this.ver = '0.3.0';
+        this.ver = '0.3.1';
     }
     Ktcs.prototype.setConfig = function (config) {
         if (!config.url || !config.token)
@@ -152,25 +152,52 @@ var Ktcs = (function () {
     };
     Ktcs.prototype.getKey = function (name, type, ref) {
         return __awaiter(this, void 0, void 0, function () {
-            var url, error_4;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var cacheFile, cacheContent, _a, key, expiredTime, error_4, url, key, cacheContent, error_5;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        url = "".concat(this.config.url, "/key");
-                        _a.label = 1;
+                        cacheFile = path_1.default.join(os_1.default.tmpdir(), ".ktcs_key_".concat(type, "_").concat(name));
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        _b.trys.push([1, 3, , 4]);
+                        return [4, uni_utils_1.default.readFile(cacheFile)];
+                    case 2:
+                        cacheContent = _b.sent();
+                        _a = JSON.parse(cacheContent), key = _a.key, expiredTime = _a.expiredTime;
+                        this.config.debug && console.log(key, expiredTime, uni_utils_1.default.getTimeStamp());
+                        if (uni_utils_1.default.getTimeStamp() < parseInt(expiredTime)) {
+                            this.config.debug && console.log('use local cache');
+                            return [2, key];
+                        }
+                        return [3, 4];
+                    case 3:
+                        error_4 = _b.sent();
+                        return [3, 4];
+                    case 4:
+                        url = "".concat(this.config.url, "/key");
+                        _b.label = 5;
+                    case 5:
+                        _b.trys.push([5, 8, , 9]);
                         return [4, this.request(url, {
                                 type: type,
                                 name: name,
                                 app_name: ref || ''
                             })];
-                    case 2: return [2, _a.sent()];
-                    case 3:
-                        error_4 = _a.sent();
-                        this.config.debug && console.log(error_4);
-                        throw Error('KEY获取错误:' + error_4.message);
-                    case 4: return [2];
+                    case 6:
+                        key = _b.sent();
+                        cacheContent = JSON.stringify({
+                            key: key,
+                            expiredTime: uni_utils_1.default.getTimeStamp() + 24 * 60 * 60
+                        });
+                        return [4, uni_utils_1.default.saveFile(cacheContent, cacheFile)];
+                    case 7:
+                        _b.sent();
+                        return [2, key];
+                    case 8:
+                        error_5 = _b.sent();
+                        this.config.debug && console.log(error_5);
+                        throw Error('KEY获取错误:' + error_5.message);
+                    case 9: return [2];
                 }
             });
         });

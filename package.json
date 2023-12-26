@@ -1,6 +1,6 @@
 {
   "name": "ktcs",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "katu config service sdk",
   "main": "index.js",
   "scripts": {

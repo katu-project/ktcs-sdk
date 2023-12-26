@@ -46,7 +46,7 @@ var uni_utils_1 = __importDefault(require("uni-utils"));
 var axios_1 = __importDefault(require("axios"));
 var Ktcs = (function () {
     function Ktcs() {
-        this.ver = '0.3.1';
+        this.ver = '0.3.2';
     }
     Ktcs.prototype.setConfig = function (config) {
         if (!config.url || !config.token)
@@ -70,11 +70,12 @@ var Ktcs = (function () {
     };
     Ktcs.prototype.getWxToken = function (app, type, ref) {
         return __awaiter(this, void 0, void 0, function () {
-            var cacheFile, cacheContent, _a, token, expiredTime, error_1, url, tokenInfo, _b, key, expire, cacheContent, error_2;
+            var cacheFile, currentTime, cacheContent, _a, token, expiredTime, error_1, url, tokenInfo, _b, key, expire, cacheContent, error_2;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
                         cacheFile = path_1.default.join(os_1.default.tmpdir(), ".ktcs_wx_".concat(type, "_").concat(app));
+                        currentTime = uni_utils_1.default.getTimeStamp();
                         _c.label = 1;
                     case 1:
                         _c.trys.push([1, 3, , 4]);
@@ -82,8 +83,14 @@ var Ktcs = (function () {
                     case 2:
                         cacheContent = _c.sent();
                         _a = cacheContent.split(':'), token = _a[0], expiredTime = _a[1];
-                        if (uni_utils_1.default.getTimeStamp() < parseInt(expiredTime)) {
-                            this.config.debug && console.log('use local cache');
+                        if (currentTime < parseInt(expiredTime)) {
+                            this.config.debug && console.table({
+                                info: 'use local cache',
+                                token: token.replace(/(.{4}).*(.{4})/, '$1****$2'),
+                                expiredTime: +expiredTime,
+                                currentTime: currentTime,
+                                remainTime: +expiredTime - currentTime
+                            });
                             return [2, token];
                         }
                         return [3, 4];

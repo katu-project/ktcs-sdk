@@ -44,9 +44,31 @@ var path_1 = __importDefault(require("path"));
 var os_1 = __importDefault(require("os"));
 var uni_utils_1 = __importDefault(require("uni-utils"));
 var axios_1 = __importDefault(require("axios"));
+function getCacheDir(filename, rootDir) {
+    return __awaiter(this, void 0, void 0, function () {
+        var cacheFile, checkDirExist;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    cacheFile = path_1.default.join(os_1.default.tmpdir(), filename);
+                    if (!rootDir) {
+                        return [2, cacheFile];
+                    }
+                    return [4, uni_utils_1.default.checkFile(rootDir)];
+                case 1:
+                    checkDirExist = _a.sent();
+                    if (!checkDirExist) {
+                        return [2, cacheFile];
+                    }
+                    cacheFile = path_1.default.join(rootDir, filename);
+                    return [2, cacheFile];
+            }
+        });
+    });
+}
 var Ktcs = (function () {
     function Ktcs() {
-        this.ver = '0.3.2';
+        this.ver = '0.3.3';
     }
     Ktcs.prototype.setConfig = function (config) {
         if (!config.url || !config.token)
@@ -70,17 +92,18 @@ var Ktcs = (function () {
     };
     Ktcs.prototype.getWxToken = function (app, type, ref) {
         return __awaiter(this, void 0, void 0, function () {
-            var cacheFile, currentTime, cacheContent, _a, token, expiredTime, error_1, url, tokenInfo, _b, key, expire, cacheContent, error_2;
+            var cacheFile, currentTime, cacheContent, _a, token, expiredTime, error_1, url, tokenInfo, _b, key, expire, cacheContent, error_2, error_3;
             return __generator(this, function (_c) {
                 switch (_c.label) {
-                    case 0:
-                        cacheFile = path_1.default.join(os_1.default.tmpdir(), ".ktcs_wx_".concat(type, "_").concat(app));
-                        currentTime = uni_utils_1.default.getTimeStamp();
-                        _c.label = 1;
+                    case 0: return [4, getCacheDir(".ktcs_wx_".concat(type, "_").concat(app), this.config.cacheDir)];
                     case 1:
-                        _c.trys.push([1, 3, , 4]);
-                        return [4, uni_utils_1.default.readFile(cacheFile)];
+                        cacheFile = _c.sent();
+                        currentTime = uni_utils_1.default.getTimeStamp();
+                        _c.label = 2;
                     case 2:
+                        _c.trys.push([2, 4, , 5]);
+                        return [4, uni_utils_1.default.readFile(cacheFile)];
+                    case 3:
                         cacheContent = _c.sent();
                         _a = cacheContent.split(':'), token = _a[0], expiredTime = _a[1];
                         if (currentTime < parseInt(expiredTime)) {
@@ -93,40 +116,49 @@ var Ktcs = (function () {
                             });
                             return [2, token];
                         }
-                        return [3, 4];
-                    case 3:
-                        error_1 = _c.sent();
-                        return [3, 4];
+                        return [3, 5];
                     case 4:
-                        url = "".concat(this.config.url, "/wx/token");
-                        _c.label = 5;
+                        error_1 = _c.sent();
+                        this.config.debug && console.log('获取缓存 key 失败:', error_1.message);
+                        return [3, 5];
                     case 5:
-                        _c.trys.push([5, 8, , 9]);
+                        url = "".concat(this.config.url, "/wx/token");
+                        _c.label = 6;
+                    case 6:
+                        _c.trys.push([6, 12, , 13]);
                         return [4, this.request(url, {
                                 type: type,
                                 name: app,
                                 app_name: ref || ''
                             })];
-                    case 6:
+                    case 7:
                         tokenInfo = _c.sent();
                         _b = tokenInfo.token, key = _b.key, expire = _b.expire;
                         cacheContent = "".concat(key, ":").concat(expire);
-                        return [4, uni_utils_1.default.saveFile(cacheContent, cacheFile)];
-                    case 7:
-                        _c.sent();
-                        return [2, key];
+                        _c.label = 8;
                     case 8:
+                        _c.trys.push([8, 10, , 11]);
+                        return [4, uni_utils_1.default.saveFile(cacheContent, cacheFile)];
+                    case 9:
+                        _c.sent();
+                        return [3, 11];
+                    case 10:
                         error_2 = _c.sent();
-                        this.config.debug && console.log(error_2);
-                        throw Error('凭证申请错误:' + error_2.message);
-                    case 9: return [2];
+                        this.config.debug && console.log('保存数据错误:', error_2.message);
+                        return [3, 11];
+                    case 11: return [2, key];
+                    case 12:
+                        error_3 = _c.sent();
+                        this.config.debug && console.log(error_3);
+                        throw Error('凭证申请错误:' + error_3.message);
+                    case 13: return [2];
                 }
             });
         });
     };
     Ktcs.prototype.getWxCfEnv = function (app, env, token, ref) {
         return __awaiter(this, void 0, void 0, function () {
-            var url, error_3;
+            var url, error_4;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -142,9 +174,9 @@ var Ktcs = (function () {
                             })];
                     case 2: return [2, _a.sent()];
                     case 3:
-                        error_3 = _a.sent();
-                        this.config.debug && console.log(error_3);
-                        throw Error('环境获取错误:' + error_3.message);
+                        error_4 = _a.sent();
+                        this.config.debug && console.log(error_4);
+                        throw Error('环境获取错误:' + error_4.message);
                     case 4: return [2];
                 }
             });
@@ -159,16 +191,17 @@ var Ktcs = (function () {
     };
     Ktcs.prototype.getKey = function (name, type, ref) {
         return __awaiter(this, void 0, void 0, function () {
-            var cacheFile, cacheContent, _a, key, expiredTime, error_4, url, key, cacheContent, error_5;
+            var cacheFile, cacheContent, _a, key, expiredTime, error_5, url, key, cacheContent, error_6, error_7;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0:
-                        cacheFile = path_1.default.join(os_1.default.tmpdir(), ".ktcs_key_".concat(type, "_").concat(name));
-                        _b.label = 1;
+                    case 0: return [4, getCacheDir(".ktcs_key_".concat(type, "_").concat(name), this.config.cacheDir)];
                     case 1:
-                        _b.trys.push([1, 3, , 4]);
-                        return [4, uni_utils_1.default.readFile(cacheFile)];
+                        cacheFile = _b.sent();
+                        _b.label = 2;
                     case 2:
+                        _b.trys.push([2, 4, , 5]);
+                        return [4, uni_utils_1.default.readFile(cacheFile)];
+                    case 3:
                         cacheContent = _b.sent();
                         _a = JSON.parse(cacheContent), key = _a.key, expiredTime = _a.expiredTime;
                         this.config.debug && console.log(key, expiredTime, uni_utils_1.default.getTimeStamp());
@@ -176,35 +209,44 @@ var Ktcs = (function () {
                             this.config.debug && console.log('use local cache');
                             return [2, key];
                         }
-                        return [3, 4];
-                    case 3:
-                        error_4 = _b.sent();
-                        return [3, 4];
+                        return [3, 5];
                     case 4:
-                        url = "".concat(this.config.url, "/key");
-                        _b.label = 5;
+                        error_5 = _b.sent();
+                        this.config.debug && console.log('获取缓存 key 失败:', error_5.message);
+                        return [3, 5];
                     case 5:
-                        _b.trys.push([5, 8, , 9]);
+                        url = "".concat(this.config.url, "/key");
+                        _b.label = 6;
+                    case 6:
+                        _b.trys.push([6, 12, , 13]);
                         return [4, this.request(url, {
                                 type: type,
                                 name: name,
                                 app_name: ref || ''
                             })];
-                    case 6:
+                    case 7:
                         key = _b.sent();
                         cacheContent = JSON.stringify({
                             key: key,
                             expiredTime: uni_utils_1.default.getTimeStamp() + 24 * 60 * 60
                         });
-                        return [4, uni_utils_1.default.saveFile(cacheContent, cacheFile)];
-                    case 7:
-                        _b.sent();
-                        return [2, key];
+                        _b.label = 8;
                     case 8:
-                        error_5 = _b.sent();
-                        this.config.debug && console.log(error_5);
-                        throw Error('KEY获取错误:' + error_5.message);
-                    case 9: return [2];
+                        _b.trys.push([8, 10, , 11]);
+                        return [4, uni_utils_1.default.saveFile(cacheContent, cacheFile)];
+                    case 9:
+                        _b.sent();
+                        return [3, 11];
+                    case 10:
+                        error_6 = _b.sent();
+                        this.config.debug && console.log('保存数据错误:', error_6.message);
+                        return [3, 11];
+                    case 11: return [2, key];
+                    case 12:
+                        error_7 = _b.sent();
+                        this.config.debug && console.log(error_7);
+                        throw Error('KEY获取错误:' + error_7.message);
+                    case 13: return [2];
                 }
             });
         });

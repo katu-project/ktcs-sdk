@@ -3,6 +3,7 @@ interface CsConfig {
     app?: string;
     token: string;
     access_token?: string;
+    cacheDir?: string;
     debug?: boolean;
 }
 interface KeyResp {

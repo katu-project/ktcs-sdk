@@ -1,4 +1,19 @@
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -40,42 +55,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Ktcs = void 0;
-var path_1 = __importDefault(require("path"));
-var os_1 = __importDefault(require("os"));
 var uni_utils_1 = __importDefault(require("uni-utils"));
-var axios_1 = __importDefault(require("axios"));
-function getCacheDir(filename, rootDir) {
-    return __awaiter(this, void 0, void 0, function () {
-        var cacheFile, checkDirExist;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    cacheFile = path_1.default.join(os_1.default.tmpdir(), filename);
-                    if (!rootDir) {
-                        return [2, cacheFile];
-                    }
-                    return [4, uni_utils_1.default.checkFile(rootDir)];
-                case 1:
-                    checkDirExist = _a.sent();
-                    if (!checkDirExist) {
-                        return [2, cacheFile];
-                    }
-                    cacheFile = path_1.default.join(rootDir, filename);
-                    return [2, cacheFile];
-            }
-        });
-    });
-}
-var Ktcs = (function () {
+var base_1 = require("./base");
+var Ktcs = (function (_super) {
+    __extends(Ktcs, _super);
     function Ktcs() {
-        this.ver = '0.3.3';
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.ver = '0.3.4';
+        return _this;
     }
-    Ktcs.prototype.setConfig = function (config) {
-        if (!config.url || !config.token)
-            throw Error('参数不完整');
-        config.url = config.url.startsWith('http') ? config.url : 'https://' + config.url;
-        this.config = config;
-    };
     Ktcs.prototype.getWxAppToken = function (app, ref) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -95,7 +83,7 @@ var Ktcs = (function () {
             var cacheFile, currentTime, cacheContent, _a, token, expiredTime, error_1, url, tokenInfo, _b, key, expire, cacheContent, error_2, error_3;
             return __generator(this, function (_c) {
                 switch (_c.label) {
-                    case 0: return [4, getCacheDir(".ktcs_wx_".concat(type, "_").concat(app), this.config.cacheDir)];
+                    case 0: return [4, this.getCacheDir(".ktcs_wx_".concat(type, "_").concat(app))];
                     case 1:
                         cacheFile = _c.sent();
                         currentTime = uni_utils_1.default.getTimeStamp();
@@ -194,7 +182,7 @@ var Ktcs = (function () {
             var cacheFile, cacheContent, _a, key, expiredTime, error_5, url, key, cacheContent, error_6, error_7;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4, getCacheDir(".ktcs_key_".concat(type, "_").concat(name), this.config.cacheDir)];
+                    case 0: return [4, this.getCacheDir(".ktcs_key_".concat(type, "_").concat(name))];
                     case 1:
                         cacheFile = _b.sent();
                         _b.label = 2;
@@ -251,28 +239,6 @@ var Ktcs = (function () {
             });
         });
     };
-    Ktcs.prototype.request = function (url, data, method) {
-        return __awaiter(this, void 0, void 0, function () {
-            var timeStamp, csRes;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        timeStamp = uni_utils_1.default.getTimeStamp();
-                        return [4, axios_1.default[method || 'post'](url, data, {
-                                headers: {
-                                    'token': uni_utils_1.default.hash.sha1("".concat(this.config.token, "-u-").concat(timeStamp)) + ':' + timeStamp
-                                }
-                            })];
-                    case 1:
-                        csRes = (_a.sent()).data;
-                        if (csRes.code !== 0) {
-                            throw Error(csRes.msg || JSON.stringify(csRes));
-                        }
-                        return [2, csRes.data];
-                }
-            });
-        });
-    };
     return Ktcs;
-}());
+}(base_1.Base));
 exports.Ktcs = Ktcs;
